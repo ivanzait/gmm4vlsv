@@ -203,10 +203,15 @@ def plot_gmm_given_axes(ax_xy, ax_xz, ax_yz, results, filename, N_pop=2):
             width, height = 2*np.sqrt(major_val), 2*np.sqrt(minor_val)
             angle = np.degrees(np.arctan2(major_vec[1], major_vec[0]))
 
+            if i == 0:
+                color='blue'
+            elif i == 1:
+                color='red'                
+
             ellipse = Ellipse(mean, width, height, angle=angle,
-                              edgecolor='black', facecolor='none', lw=2)
+                              edgecolor=color, facecolor='none', lw=1)
             ax.add_patch(ellipse)
-            ax.plot(mean[0], mean[1], 'bX', markersize=8)
+            ax.plot(mean[0], mean[1], 'X', color=color, markersize=4)
 
  #   plt.suptitle(f"GMM populations (N={N_pop}) for {filename}", y=0.5, x=0.44)
             
