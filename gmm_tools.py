@@ -117,15 +117,6 @@ def plot_vdf_with_gmm(results, filename, vdf, shape, lims, N_pop=2, save_fig=Fal
 def plot_gmm(results, filename, N_pop=2, save_fig=False, img_size=(1024,1024)):
     
     t_ind =  filename.split('_')[-3]
-    # # --- Velocity axes
-    # vx = np.linspace(lims[0], lims[3], shape[0])
-    # vy = np.linspace(lims[1], lims[4], shape[1])
-    # vz = np.linspace(lims[2], lims[5], shape[2])
-    
-    # # --- 2D projections of the VDF ---
-    # vdf_xy = np.sum(vdf, axis=2).T
-    # vdf_xz = np.sum(vdf, axis=1).T
-    # vdf_yz = np.sum(vdf, axis=0).T
 
     # --- Create figure with fixed size in inches to match desired pixels ---
     dpi = 100  # adjust so that figsize*dpi = img_size
@@ -139,11 +130,6 @@ def plot_gmm(results, filename, N_pop=2, save_fig=False, img_size=(1024,1024)):
     ax_xy = plt.axes([left_start, bottom, sz, sz])
     ax_xz = plt.axes([left_start + sz + spacing, bottom, sz, sz])
     ax_yz = plt.axes([left_start + 2*(sz + spacing), bottom, sz, sz])
-
-    # --- Plot VDF projections ---
-    # ax_xy.pcolor(vx, vy, vdf_xy, cmap='jet', shading='auto', norm=LogNorm(vmin=1e-16, vmax=np.max(vdf_xy)))
-    # ax_xz.pcolor(vx, vz, vdf_xz, cmap='jet', shading='auto', norm=LogNorm(vmin=1e-16, vmax=np.max(vdf_xz)))
-    # ax_yz.pcolor(vy, vz, vdf_yz, cmap='jet', shading='auto', norm=LogNorm(vmin=1e-16, vmax=np.max(vdf_yz)))
 
     # # --- GMM ellipses ---
     means = results[filename]['means'][N_pop]
@@ -192,4 +178,39 @@ def plot_gmm(results, filename, N_pop=2, save_fig=False, img_size=(1024,1024)):
         plt.savefig(os.path.join(folder_path, f"gmm_vdf_{t_ind}.png"),
                     dpi=dpi, bbox_inches=None, pad_inches=0.05)
     
+    plt.show()
+
+
+def plot_gmm_given_axes(ax_xy, ax_xz, ax_yz, results, filename, N_pop=2):
+    '''give pre-created axes'''
+    t_ind =  filename.split('_')[-3]
+
+    # # --- GMM ellipses ---
+    means = results[filename]['means'][N_pop]
+    covs  = results[filename]['covariances'][N_pop]
+
+    for i in range(len(means)):
+        mean_vx, mean_vy, mean_vz = means[i]
+        mean_pairs = [[mean_vx, mean_vy], [mean_vx, mean_vz], [mean_vy, mean_vz]]
+        cov_xy = covs[i][:2, :2]
+        cov_xz = covs[i][[0,2], :][:, [0,2]]
+        cov_yz = covs[i][1:, 1:]
+
+        for cov, ax, mean in zip([cov_xy, cov_xz, cov_yz],
+                                 [ax_xy, ax_xz, ax_yz],
+                                 mean_pairs):
+            vals, vecs = np.linalg.eigh(cov)
+            order = np.argsort(vals)[::-1]
+            major_val, minor_val = vals[order]
+            major_vec = vecs[:, order[0]]
+            width, height = 2*np.sqrt(major_val), 2*np.sqrt(minor_val)
+            angle = np.degrees(np.arctan2(major_vec[1], major_vec[0]))
+
+            ellipse = Ellipse(mean, width, height, angle=angle,
+                              edgecolor='black', facecolor='none', lw=2)
+            ax.add_patch(ellipse)
+            ax.plot(mean[0], mean[1], 'bX', markersize=8)
+
+    plt.suptitle(f"GMM populations (N={N_pop}) for {filename}", y=0.5, x=0.44)
+            
     plt.show()
