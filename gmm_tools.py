@@ -160,16 +160,13 @@ def plot_gmm(results, filename, N_pop=2, save_fig=False, img_size=(1024,1024)):
     # --- Axis labels and titles ---
     ax_xy.set_xlabel('Vx')
     ax_xy.set_ylabel('Vy')
-    ax_xy.set_title('Vx–Vy')
 
     ax_xz.set_xlabel('Vx')
     ax_xz.set_ylabel('Vz')
-    ax_xz.set_title('Vx–Vz')
 
     ax_yz.set_xlabel('Vy')
     ax_yz.set_ylabel('Vz')
-    ax_yz.set_title('Vy–Vz')
-    plt.suptitle(f"GMM populations (N={N_pop}) for {filename}", y=0.5, x=0.44)
+#    plt.suptitle(f"GMM populations (N={N_pop}) for {filename}", y=0.5, x=0.44)
     
     
     folder_path = "gmm_vdf_plots"
@@ -211,6 +208,6 @@ def plot_gmm_given_axes(ax_xy, ax_xz, ax_yz, results, filename, N_pop=2):
             ax.add_patch(ellipse)
             ax.plot(mean[0], mean[1], 'bX', markersize=8)
 
-    plt.suptitle(f"GMM populations (N={N_pop}) for {filename}", y=0.5, x=0.44)
+ #   plt.suptitle(f"GMM populations (N={N_pop}) for {filename}", y=0.5, x=0.44)
             
-    plt.show()
+ #   plt.show()
